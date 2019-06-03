@@ -17,3 +17,11 @@
 ## [一键订阅到Inoreader](https://gist.github.com/ttttmr/577acf8a7ddf97c8972a6132a15e238a)
 
 浏览器书签脚本，一键订阅当前页到Inoreader，[使用说明](https://tmr.js.org/p/dd73704/)
+
+## [百度搜索结果字体加大](https://userstyles.org/styles/161453/baidu-search-font-size)
+
+字太小，调网页大小效果又不好
+
+## [Chrome滚动条美化](https://userstyles.org/styles/161455/chrome-scrollbar-beautify)
+
+Chrome浏览器滚动条美化，减小宽度，圆角过渡
