@@ -2,10 +2,11 @@
 // @name         自动网页全屏播放
 // @namespace    https://tmr.js.org/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.4
-// @description  自动网页全屏播放，已支持Bilibili
+// @version      0.5
+// @description  自动网页全屏播放，已支持Bilibili，Youtube
 // @author       tmr
 // @match        https://www.bilibili.com/video/av*
+// @match        https://www.youtube.com/watch?v=*
 // @grant        none
 // ==/UserScript==
 
@@ -18,15 +19,17 @@
         function webfull() {
             console.log('web fullscreen ing ' + counter);
             counter++;
-            let fullscreen_class;
+            let fullscreenClass;
             if (location.host == 'www.bilibili.com') {
-                fullscreen_class = '.bilibili-player-video-web-fullscreen';
+                fullscreenClass = '.bilibili-player-video-web-fullscreen';
+            } else if (location.host == 'www.youtube.com') {
+                fullscreenClass = '.ytp-size-button';
             }
-            if (fullscreen_class) {
+            if (fullscreenClass) {
                 // 尝试全屏
-                if (document.querySelector(fullscreen_class)) {
+                if (document.querySelector(fullscreenClass)) {
                     // 网页全屏
-                    document.querySelector(fullscreen_class).click();
+                    document.querySelector(fullscreenClass).click();
                     console.log('web fullscreen success');
                     document.removeEventListener('visibilitychange', fullscreen);
                 }
@@ -53,6 +56,7 @@
                     // 视频推荐class
                     videoclass = 'bilibili-player-ending-panel-box-recommend-cover';
                 }
+
                 if (videourl) {
                     if (String(e.target).indexOf(videourl) == 0) {
                         fullscreen();
