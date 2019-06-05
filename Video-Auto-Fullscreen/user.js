@@ -2,7 +2,7 @@
 // @name         自动网页全屏播放
 // @namespace    https://tmr.js.org/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.2
+// @version      0.3
 // @description  自动网页全屏播放，已支持Bilibili
 // @author       tmr
 // @match        https://www.bilibili.com/video/av*
@@ -18,7 +18,6 @@
         function webfull() {
             console.log('web fullscreen ing ' + counter);
             counter++;
-            let play_class;
             let fullscreen_class;
             if (location.host == 'www.bilibili.com') {
                 fullscreen_class = '.bilibili-player-video-web-fullscreen';
@@ -27,7 +26,7 @@
                 // 尝试全屏
                 if (document.querySelector(fullscreen_class)) {
                     // 网页全屏
-                    $(fullscreen_class).click();
+                    document.querySelector(fullscreen_class).click();
                     console.log('web fullscreen success');
                     document.removeEventListener('visibilitychange',fullscreen);
                 }
