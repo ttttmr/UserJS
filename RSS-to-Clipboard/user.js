@@ -124,7 +124,7 @@ javascript: (function () {
         return;
       }
     } else if (domain == 'github.com') {
-      if (path[3] == 'issues'){
+      if (path[3] == 'issues') {
         rsshub_path = github_issues + path[1] + '/' + path[2];
       } else {
         alert('Use it in GitHub Issues page');

@@ -90,7 +90,7 @@ javascript: (function () {
         return;
       }
     } else if (domain == 'github.com') {
-      if (path[3] == 'issues'){
+      if (path[3] == 'issues') {
         rsshub_path = github_issues + path[1] + '/' + path[2];
       } else {
         alert('Use it in GitHub Issues page');
@@ -116,13 +116,13 @@ javascript: (function () {
   let width = window.innerWidth ?
     window.innerWidth :
     document.documentElement.clientWidth ?
-    document.documentElement.clientWidth :
-    screen.width;
+      document.documentElement.clientWidth :
+      screen.width;
   let height = window.innerHeight ?
     window.innerHeight :
     document.documentElement.clientHeight ?
-    document.documentElement.clientHeight :
-    screen.height;
+      document.documentElement.clientHeight :
+      screen.height;
   let d = width / 2 - w / 2 + b;
   let e = height / 2 - h / 2 + c;
   let f = window.open(
