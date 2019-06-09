@@ -2,7 +2,7 @@
 // @name         自动网页全屏播放
 // @namespace    https://tmr.js.org/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.7
+// @version      0.8
 // @description  自动网页全屏播放，已支持Bilibili，Youtube（剧场模式），腾讯视频
 // @author       tmr
 // @match        https://www.bilibili.com/video/av*
