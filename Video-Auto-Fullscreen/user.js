@@ -54,54 +54,53 @@
                 }
             }
         }
-        clickVideoLink();
-        function clickVideoLink() {
-            window.onclick = function (mClick) {
-                let mClickElement= mClick.target;
-                if (location.host == 'www.bilibili.com') {
-                    // 视频链接
-                    let videoUrlList = ['https://www.bilibili.com/video/av', 'https://www.bilibili.com/bangumi/play/ss', 'https://www.bilibili.com/bangumi/play/ep'];
-                    // 视频Class
-                    let videoClassList = ['bilibili-player-ending-panel-box-recommend-cover', 'ep-title', 'ep-item'];
+    }
+    clickVideoLink();
+    function clickVideoLink() {
+        window.onclick = function (mClick) {
+            let mClickElement = mClick.target;
+            // 视频链接
+            let videoUrlList;
+            // 视频Class
+            let videoClassList;
+            if (location.host == 'www.bilibili.com') {
+                videoUrlList = ['https://www.bilibili.com/video/av', 'https://www.bilibili.com/bangumi/play/ss', 'https://www.bilibili.com/bangumi/play/ep'];
+                videoClassList = ['bilibili-player-ending-panel-box-recommend-cover', 'bilibili-player-ending-panel-box-recommend', 'ep-title', 'ep-item'];
+            } else if (location.host == 'v.qq.com') {
+                videoUrlList = ['https://v.qq.com/x/page/'];
+                videoClassList = [];
+            }
+            // 优先Class处理
+            videoClassList.forEach(function (videoClass) {
+                if (mClickElement.classList.contains(videoClass)) {
+                    fullscreen();
+                    return;
+                }
+            });
+            // 链接处理
+            let mClickElementTmp = mClickElement
+            // 判断是否是a标签的子元素
+            while (mClickElementTmp) {
+                // 元素是a标签
+                if (mClickElementTmp.tagName == 'A') {
                     // 新tab打开不处理
-                    if (mClickElement.target == '_blank') {
-                        return;
+                    if (mClickElementTmp.target == '_blank') {
+                        break;
                     }
-                    videoUrlList.forEach(function (videoUrl) {
-                        if (String(mClickElement).indexOf(videoUrl) == 0) {
-                            fullscreen();
-                            return;
-                        }
-                    });
-                    videoClassList.forEach(function (videoClass) {
-                        if (mClickElement.classList.contains(videoClass)) {
-                            fullscreen();
-                            return;
-                        }
-                    });
-                } else if (location.host == 'v.qq.com') {
-                    // 视频链接
-                    let videoUrlList = ['https://v.qq.com/x/page/', 'https://v.qq.com/x/cover/'];
-                    // 视频父级Id
-                    let videoParentId = 'video_scroll_wrap';
-                    // 新tab打开不处理
-                    if (mClickElement.target == '_blank') {
-                        return;
+                    else {
+                        // 循环判断链接
+                        videoUrlList.some(function (videoUrl) {
+                            if (String(mClickElementTmp.href).indexOf(videoUrl) == 0) {
+                                fullscreen();
+                                return true;
+                            }
+                        });
+                        break;
                     }
-                    videoUrlList.forEach(function (videoUrl) {
-                        if (String(mClickElement).indexOf(videoUrl) == 0) {
-                            fullscreen();
-                            return;
-                        }
-                    });
-                    while (mClickElement.parentElement) {
-                        if (mClickElement.parentElement.id == videoParentId) {
-                            fullscreen();
-                            return;
-                        } else {
-                            mClickElement = mClickElement.parentElement;
-                        }
-                    }
+                }
+                // 不是a标签就循环父级元素
+                else {
+                    mClickElementTmp = mClickElementTmp.parentElement;
                 }
             }
         }
