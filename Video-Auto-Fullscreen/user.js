@@ -2,13 +2,15 @@
 // @name         自动网页全屏播放
 // @namespace    https://tmr.js.org/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.6
-// @description  自动网页全屏播放，已支持Bilibili，Youtube
+// @version      0.7
+// @description  自动网页全屏播放，已支持Bilibili，Youtube（剧场模式），腾讯视频
 // @author       tmr
 // @match        https://www.bilibili.com/video/av*
 // @match        https://www.bilibili.com/bangumi/play/ss*
 // @match        https://www.bilibili.com/bangumi/play/ep*
 // @match        https://www.youtube.com/watch?v=*
+// @match        https://v.qq.com/x/page/*
+// @match        https://v.qq.com/x/cover/*
 // @grant        none
 // ==/UserScript==
 
@@ -26,6 +28,8 @@
                 fullscreenClass = '.bilibili-player-video-web-fullscreen';
             } else if (location.host == 'www.youtube.com') {
                 fullscreenClass = '.ytp-size-button';
+            } else if (location.host == 'v.qq.com') {
+                fullscreenClass = '.txp_btn_fake';
             }
             if (fullscreenClass) {
                 // 尝试全屏
@@ -52,34 +56,52 @@
         }
         clickVideoLink();
         function clickVideoLink() {
-            window.onclick = function (e) {
-                let videoFlag = false;
-                let videoUrlList;
-                let videoClassList;
+            window.onclick = function (mClick) {
+                let mClickElement= mClick.target;
                 if (location.host == 'www.bilibili.com') {
                     // 视频链接
-                    videoUrlList = ['https://www.bilibili.com/video/av', 'https://www.bilibili.com/bangumi/play/ss', 'https://www.bilibili.com/bangumi/play/ep'];
-                    // 视频class
-                    videoClassList = ['bilibili-player-ending-panel-box-recommend-cover', 'ep-title', 'ep-item'];
-                    videoFlag = true;
-                }
-                if (videoFlag) {
+                    let videoUrlList = ['https://www.bilibili.com/video/av', 'https://www.bilibili.com/bangumi/play/ss', 'https://www.bilibili.com/bangumi/play/ep'];
+                    // 视频Class
+                    let videoClassList = ['bilibili-player-ending-panel-box-recommend-cover', 'ep-title', 'ep-item'];
                     // 新tab打开不处理
-                    if (e.target.target == '_blank') {
+                    if (mClickElement.target == '_blank') {
                         return;
                     }
                     videoUrlList.forEach(function (videoUrl) {
-                        if (String(e.target).indexOf(videoUrl) == 0) {
+                        if (String(mClickElement).indexOf(videoUrl) == 0) {
                             fullscreen();
                             return;
                         }
                     });
                     videoClassList.forEach(function (videoClass) {
-                        if (e.target.classList.contains(videoClass)) {
+                        if (mClickElement.classList.contains(videoClass)) {
                             fullscreen();
                             return;
                         }
                     });
+                } else if (location.host == 'v.qq.com') {
+                    // 视频链接
+                    let videoUrlList = ['https://v.qq.com/x/page/', 'https://v.qq.com/x/cover/'];
+                    // 视频父级Id
+                    let videoParentId = 'video_scroll_wrap';
+                    // 新tab打开不处理
+                    if (mClickElement.target == '_blank') {
+                        return;
+                    }
+                    videoUrlList.forEach(function (videoUrl) {
+                        if (String(mClickElement).indexOf(videoUrl) == 0) {
+                            fullscreen();
+                            return;
+                        }
+                    });
+                    while (mClickElement.parentElement) {
+                        if (mClickElement.parentElement.id == videoParentId) {
+                            fullscreen();
+                            return;
+                        } else {
+                            mClickElement = mClickElement.parentElement;
+                        }
+                    }
                 }
             }
         }

@@ -10,7 +10,7 @@
 
 ### [自动网页全屏播放](https://greasyfork.org/zh-CN/scripts/384233-自动网页全屏播放)
 
-已支持Bilibili，后续再加其他网站
+已支持Bilibili，Youtube（剧场模式），腾讯视频，后续再加其他网站
 
 ## 书签脚本
 
