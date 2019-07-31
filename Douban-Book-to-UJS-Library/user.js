@@ -14,9 +14,7 @@
     let title = document.getElementsByTagName('h1')[0].children[0].innerText;
     let info = document.getElementById('info');
     let liblink = document.createElement('a');
-    
     let isbn = info.innerText.match(/\d{13}|\d{10}/)[0];
-
     liblink.href='http://huiwen.ujs.edu.cn:8080/opac/openlink.php?strSearchType=isbn&match_flag=full&historyCount=1&strText='+isbn+'&doctype=ALL&with_ebook=on&displaypg=20&showmode=list&sort=CATA_DATE&orderby=desc&location=ALL';
     liblink.target = '_blank';
     liblink.innerText = '去江苏大学图书馆搜索';
