@@ -2,7 +2,7 @@
 // @name         豆瓣读书直达江苏大学图书馆搜索
 // @namespace    https://tmr.js.org/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.2
+// @version      0.3
 // @description  豆瓣读书直达江苏大学图书馆搜索，方便找书
 // @author       tmr
 // @include      https://book.douban.com/*
