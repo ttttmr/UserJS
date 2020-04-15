@@ -12,6 +12,10 @@
 
 已支持Bilibili，Youtube（剧场模式），腾讯视频，后续再加其他网站
 
+### [FT中文网自动加载全文](https://greasyfork.org/zh-CN/scripts/400917-ft中文网自动加载全文)
+
+[FT中文网](http://www.ftchinese.com)自动加载全文，并修改所有FT中文网链接，增加全文参数
+
 ## 书签脚本
 
 ### [一键复制RSS](https://tmr.js.org/p/2d708812/)
