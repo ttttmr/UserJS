@@ -2,9 +2,11 @@
 // @name         FT中文网自动加载全文
 // @namespace    https://tmr.js.org/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.4
+// @version      0.6
 // @description  FT中文网自动加载全文，并修改所有FT中文网链接，增加全文参数
 // @author       tmr
+// @match        http://www.ftchinese.com/*
+// @match        https://www.ftchinese.com/*
 // @match        http://*/*
 // @match        https://*/*
 // @grant        none
