@@ -2,7 +2,7 @@
 // @name         FT中文网自动加载全文
 // @namespace    https://tmr.js.org/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.2
+// @version      0.4
 // @description  FT中文网自动加载全文，并修改所有FT中文网链接，增加全文参数
 // @author       tmr
 // @match        http://*/*
@@ -13,26 +13,31 @@
 (function () {
     'use strict';
     function full(url) {
+        // 已有全文参数
+        if (url.includes('full=y')) {
+            return url;
+        }
         // 无参数
         if (!url.includes('?')) {
-            url = url + '?full=y';
+            return url + '?full=y';
         }
         // 有参数，但没有指定页参数
         if (!url.includes('page=')) {
-            url = url + '&full=y';
+            return url + '&full=y';
         }
         // 指定页为1，也要加载全文
         if (url.includes('page=1')) {
+            let newurl = url;
             // 判断参数位置并删掉
             if (url.length - url.indexOf("page=1") == 6) {
-                url = url.replace("page=1", "");
+                newurl = url.replace("page=1", "");
             }
             else {
-                url = url.replace("page=1&", "");
+                newurl = url.replace("page=1&", "");
             }
-            url = url + '&full=y';
+            newurl = newurl + '&full=y';
+            return newurl;
         }
-        return url;
     }
     if (location.host == 'www.ftchinese.com') {
         console.log('ft');
@@ -46,12 +51,13 @@
         }
     } else {
         console.log('no ft');
-        let aTagList = document.querySelectorAll('a');
-        aTagList.forEach(function (ele) {
-            if (ele.href.startsWith('http://www.ftchinese.com/story/') || ele.href.startsWith('https://www.ftchinese.com/story/')) {
-                console.log('发现ft链接');
-                ele.href = full(ele.href);
-            }
-        });
     }
+    // 替换ft链接
+    let aTagList = document.querySelectorAll('a');
+    aTagList.forEach(function (ele) {
+        if (ele.href.startsWith('http://www.ftchinese.com/story/') || ele.href.startsWith('https://www.ftchinese.com/story/')) {
+            console.log('发现ft链接，替换' + ele.href);
+            ele.href = full(ele.href);
+        }
+    });
 })();
