@@ -16,6 +16,10 @@
 
 [FT中文网](http://www.ftchinese.com)自动加载全文，并修改所有FT中文网链接，增加全文参数
 
+### [重命名知乎日报标题](https://greasyfork.org/zh-CN/scripts/405276-%E4%BF%AE%E6%94%B9%E7%9F%A5%E4%B9%8E%E6%97%A5%E6%8A%A5%E6%A0%87%E9%A2%98)
+
+目前知乎日报标题都统一，很不方便，自动重命名为`[文章标题]-知乎日报`格式
+
 ## 书签脚本
 
 ### [一键复制RSS](https://tmr.js.org/p/2d708812/)
