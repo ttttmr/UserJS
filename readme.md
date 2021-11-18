@@ -22,11 +22,11 @@
 
 ## 书签脚本
 
-### [一键复制RSS](https://tmr.js.org/p/2d708812/)
+### [一键复制RSS](https://blog.xlab.app/p/2d708812/)
 
 快速查找当前页面RSS，并复制到剪切板
 
-### [一键订阅到Inoreader](https://tmr.js.org/p/dd73704/)
+### [一键订阅到Inoreader](https://blog.xlab.app/p/dd73704/)
 
 一键订阅当前页到Inoreader
 

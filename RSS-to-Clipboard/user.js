@@ -132,9 +132,13 @@ javascript: (function () {
       }
     }
     if (rsshub_path == '') {
-      console.log('Rss not found, if rsshub supports this website, please contact me');
-      console.log('https://tmr.js.org/');
-      alert('Rss not found, if rsshub supports this website, please contact me');
+      console.log(
+        'Rss not found, if rsshub supports this website, please contact me'
+      );
+      console.log('https://blog.xlab.app/');
+      alert(
+        'Rss not found, if rsshub supports this website, please contact me'
+      );
       return;
     } else {
       console.log('RSS found in RSSHub');

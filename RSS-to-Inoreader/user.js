@@ -108,35 +108,37 @@ javascript: (function () {
     console.log(feedurl);
     feedurl = 'https://www.inoreader.com/?add_feed=' + feedurl;
   } else {
-    feedurl = 'https://www.inoreader.com/bookmarklet/subscribe/' + encodeURIComponent(location.href);
+    feedurl =
+      'https://www.inoreader.com/bookmarklet/subscribe/' +
+      encodeURIComponent(location.href);
   }
   console.log(feedurl);
   let b = window.screenLeft != undefined ? window.screenLeft : screen.left;
   let c = window.screenTop != undefined ? window.screenTop : screen.top;
-  let width = window.innerWidth ?
-    window.innerWidth :
-    document.documentElement.clientWidth ?
-      document.documentElement.clientWidth :
-      screen.width;
-  let height = window.innerHeight ?
-    window.innerHeight :
-    document.documentElement.clientHeight ?
-      document.documentElement.clientHeight :
-      screen.height;
+  let width = window.innerWidth
+    ? window.innerWidth
+    : document.documentElement.clientWidth
+    ? document.documentElement.clientWidth
+    : screen.width;
+  let height = window.innerHeight
+    ? window.innerHeight
+    : document.documentElement.clientHeight
+    ? document.documentElement.clientHeight
+    : screen.height;
   let d = width / 2 - w / 2 + b;
   let e = height / 2 - h / 2 + c;
   let f = window.open(
     feedurl,
     new Date().getTime(),
     'width=' +
-    w +
-    ', height=' +
-    h +
-    ', top=' +
-    e +
-    ', left=' +
-    d +
-    'location=yes,resizable=yes,status=no,scrollbars=no,personalbar=no,toolbar=no,menubar=no'
+      w +
+      ', height=' +
+      h +
+      ', top=' +
+      e +
+      ', left=' +
+      d +
+      'location=yes,resizable=yes,status=no,scrollbars=no,personalbar=no,toolbar=no,menubar=no'
   );
   if (window.focus) {
     f.focus();
