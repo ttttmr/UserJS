@@ -20,6 +20,10 @@
 
 目前知乎日报标题都统一，很不方便，自动重命名为`[文章标题]-知乎日报`格式
 
+### [禁用SendBeacon](https://greasyfork.org/zh-CN/scripts/435663-%E7%A6%81%E7%94%A8sendbeacon)
+
+navigator.sendBeacon常用于上报日志数据，禁用保护隐私
+
 ## 书签脚本
 
 ### [一键复制RSS](https://blog.xlab.app/p/2d708812/)
