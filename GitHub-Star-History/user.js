@@ -3,7 +3,7 @@
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
 // @version      0.1
-// @description  GitHub Star History Link
+// @description  GitHub Star History 快速跳转到 https://star-history.com/
 // @author       tmr
 // @match        https://github.com/*/*
 // @grant        none

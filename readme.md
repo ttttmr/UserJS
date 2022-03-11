@@ -24,6 +24,14 @@
 
 navigator.sendBeacon常用于上报日志数据，禁用保护隐私
 
+### [GitHub Star History](https://greasyfork.org/zh-CN/scripts/441323-github-star-history)
+
+快速跳转到 https://star-history.com/
+
+### [GitHub File History](https://greasyfork.org/zh-CN/scripts/441324-github-file-history)
+
+快速跳转到 https://github.githistory.xyz/
+
 ## 书签脚本
 
 ### [一键复制RSS](https://blog.xlab.app/p/2d708812/)
