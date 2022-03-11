@@ -2,7 +2,7 @@
 // @name         GitHub File History
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.1
+// @version      0.2
 // @description  GitHub File History 快速跳转到 https://github.githistory.xyz/
 // @author       tmr
 // @match        https://github.com/*/*
