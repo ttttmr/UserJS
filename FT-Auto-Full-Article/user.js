@@ -2,7 +2,7 @@
 // @name         FT中文网自动加载全文
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.8
+// @version      0.9
 // @description  FT中文网自动跳转chineseft，自动加载全文，并修改所有FT中文网链接，增加全文参数
 // @author       tmr
 // @match        http://*/*
@@ -67,7 +67,7 @@
         ele.href = ele.href.replace(/www.ftchinese.com/, 'www.chineseft.com');
         ele.href = full(ele.href);
       } else if (
-        ele.href.startsWith('https://www.chineseft.com/story/') ||
+        ele.href.startsWith('http://www.chineseft.com/story/') ||
         ele.href.startsWith('https://www.chineseft.com/story/')
       ) {
         console.log('发现ft链接，替换' + ele.href);
