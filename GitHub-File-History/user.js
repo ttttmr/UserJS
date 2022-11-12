@@ -2,7 +2,7 @@
 // @name         GitHub File History
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.3
+// @version      0.4
 // @description  GitHub File History 快速跳转到 https://github.githistory.xyz/
 // @author       tmr
 // @match        https://github.com/*/*
@@ -17,26 +17,35 @@
       return;
     }
     count++;
-    let raw = document.querySelector("#raw-url");
-    if (raw == null) {
-      setTimeout(run, 1000);
+    // document.querySelector(".octicon.octicon-history").parentElement.parentElement.parentElement
+    let h = document.querySelector(".octicon.octicon-history");
+    if (h == null) {
+      setTimeout(run, 500);
       return;
     }
 
-    let bg = raw.parentElement;
-    if (bg == null) {
-      setTimeout(run, 1000);
+    let hp = h.parentElement;
+    if (hp == null) {
+      setTimeout(run, 500);
       return;
     }
 
-    let link = document.createElement("a");
-    let u = location.href;
-    link.href = u.replace("github.com", "github.githistory.xyz");
-    link.className = "btn-sm btn BtnGroup-item";
-    link.target = "_blank";
-    link.innerText = "History";
+    let hpp = hp.parentElement;
+    if (hpp == null) {
+      setTimeout(run, 500);
+      return;
+    }
 
-    bg.appendChild(link);
+    let hppp = hpp.parentElement;
+    if (hppp == null) {
+      setTimeout(run, 500);
+      return;
+    }
+
+    let ac = hpp.cloneNode(true);
+    ac.lastChild.textContent="Git History"
+    ac.href=ac.href.replace("github.com", "github.githistory.xyz")
+    hppp.appendChild(ac);
   }
   run();
 })();
