@@ -2,13 +2,12 @@
 // @name         自动网页全屏播放
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.8
-// @description  自动网页全屏播放，已支持Bilibili，Youtube（剧场模式），腾讯视频
+// @version      0.9
+// @description  自动网页全屏播放，已支持Bilibili，腾讯视频
 // @author       tmr
 // @match        https://www.bilibili.com/video/av*
 // @match        https://www.bilibili.com/bangumi/play/ss*
 // @match        https://www.bilibili.com/bangumi/play/ep*
-// @match        https://www.youtube.com/watch?v=*
 // @match        https://v.qq.com/x/page/*
 // @match        https://v.qq.com/x/cover/*
 // @grant        none
@@ -26,8 +25,6 @@
       let fullscreenClass;
       if (location.host == 'www.bilibili.com') {
         fullscreenClass = '.bilibili-player-video-web-fullscreen';
-      } else if (location.host == 'www.youtube.com') {
-        fullscreenClass = '.ytp-size-button';
       } else if (location.host == 'v.qq.com') {
         fullscreenClass = '.txp_btn_fake';
       }
