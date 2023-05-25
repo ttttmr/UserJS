@@ -2,7 +2,7 @@
 // @name         GitHub File History
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.5
+// @version      0.6
 // @description  GitHub File History 快速跳转到 https://github.githistory.xyz/
 // @author       tmr
 // @match        https://github.com/*/*
@@ -13,26 +13,20 @@
   "use strict";
   let count = 0;
   function run() {
-    if (document.readyState == "complete" && count > 10) {
+    if (document.readyState == "complete" && count > 5) {
       return;
     }
     count++;
-    let h = document.querySelector(".react-last-commit-history-group");
-    if (h == null) {
+    let n = document.querySelector("a[aria-label='History']");
+    if (n == null) {
       setTimeout(run, 500);
       return;
     }
 
-    let hp = h.parentElement;
-    if (hp == null) {
-      setTimeout(run, 500);
-      return;
-    }
-
-    let ac = h.cloneNode(true);
-    ac.lastChild.lastChild.lastChild.lastChild.textContent = "Git History";
-    ac.href = ac.href.replace("github.com", "github.githistory.xyz");
-    hp.appendChild(ac);
+    let cn = n.cloneNode(true);
+    cn.lastChild.textContent = "Git History";
+    cn.href = cn.href.replace("github.com", "github.githistory.xyz");
+    n.parentElement.append(cn);
   }
   run();
 })();
