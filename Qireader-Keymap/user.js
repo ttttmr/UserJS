@@ -91,7 +91,7 @@
     }
   }
 
-  function ReadEntry() {
+  function ReadEntry(force = false) {
     if (!currEntry) {
       return false;
     }
@@ -107,15 +107,14 @@
         .querySelectorAll("div>span")
         .forEach(
           (e) =>
-            (e.textContent === "标记为未读" ||
-              e.textContent === "标记为已读") &&
+            (e.textContent === "标记为已读" || (!force  && e.textContent === "标记为未读")              ) &&
             e.click()
         );
       menu.remove();
       return true;
     }
     if (currEntry.tagName == "ARTICLE") {
-      EntryNav().forEach((e) => (e.title === "标记为未读" || e.title === "标记为已读") && e.click());
+      EntryNav().forEach((e) => (e.title === "标记为已读" || (!force && e.title === "标记为未读")) && e.click());
     }
   }
 
@@ -123,7 +122,7 @@
     if (!currEntry) {
       return false;
     }
-    ReadEntry();
+    ReadEntry(true);
     GM_openInTab(EntryLink(), {
       active: false,
     });
