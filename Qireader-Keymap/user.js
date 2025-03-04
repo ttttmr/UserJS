@@ -5,7 +5,7 @@
 // @match       https://www.qireader.com.cn/*
 // @match       https://www.qireader.com/*
 // @grant       none
-// @version     0.2
+// @version     0.3
 // @author      tmr
 // @grant       GM_openInTab
 // @inject-into content
@@ -31,7 +31,7 @@
   document.addEventListener("mouseover", (event) => {
     currEntry = event.target.closest("div[data-is-entry]");
     if (!currEntry) {
-      currEntry = event.target.closest("article");
+      currEntry = document.querySelector("article")
     }
   });
 
