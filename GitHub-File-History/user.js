@@ -2,7 +2,7 @@
 // @name         GitHub File History
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.6
+// @version      0.7
 // @description  GitHub File History 快速跳转到 https://github.githistory.xyz/
 // @author       tmr
 // @match        https://github.com/*/*
@@ -17,15 +17,18 @@
       return;
     }
     count++;
-    let n = document.querySelector("a[aria-label='History']");
+    let n = document.querySelector("svg.octicon-history").parentElement
+      .parentElement.parentElement.parentElement;
     if (n == null) {
       setTimeout(run, 500);
       return;
     }
 
     let cn = n.cloneNode(true);
-    cn.lastChild.textContent = "Git History";
-    cn.href = cn.href.replace("github.com", "github.githistory.xyz");
+    cn.firstChild.textContent = "Git History";
+    cn.querySelector("a").href = cn
+      .querySelector("a")
+      .href.replace("github.com", "github.githistory.xyz");
     n.parentElement.append(cn);
   }
   run();

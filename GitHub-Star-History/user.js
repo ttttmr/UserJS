@@ -3,7 +3,7 @@
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
 // @version      0.2
-// @description  GitHub Star History 快速跳转到 https://star-history.com/
+// @description  GitHub Star History Link
 // @author       tmr
 // @match        https://github.com/*/*
 // @grant        none
@@ -36,7 +36,18 @@
   let l = document.createElement("li");
   l.appendChild(link);
 
-  if (document.querySelector(".pagehead-actions")) {
-    document.querySelector(".pagehead-actions").appendChild(l);
+  let count = 0;
+  function run() {
+    if (document.readyState == "complete" && count > 5) {
+      return;
+    }
+    count++;
+    let n = document.querySelector(".pagehead-actions");
+    if (n == null) {
+      setTimeout(run, 500);
+      return;
+    }
+    n.appendChild(l);
   }
+  run();
 })();
