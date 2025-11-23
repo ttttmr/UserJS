@@ -3,7 +3,7 @@
 // @name:en      Ask Gemini Anywhere
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.1
+// @version      0.2
 // @description  按快捷键选择页面元素，快速发送到Gemini
 // @description:en  Select page elements with shortcut and quickly send to Gemini
 // @author       tmr
@@ -16,20 +16,6 @@
 
 const CONFIG = {
   SHORTCUT_TRIGGER: (e) => e.altKey && e.code === "Digit2",
-  PROMPTS: {
-    zh: {
-      readingArticle: (title, url) =>
-        `我正在阅读[${title}](${url})，文章内容如下:`,
-      explainSelection: (selection) => `其中${selection}如何理解？`,
-      summarize: "总结这篇文章",
-    },
-    en: {
-      readingArticle: (title, url) =>
-        `I'm reading [${title}](${url}), the content is as follows:`,
-      explainSelection: (selection) => `How to understand ${selection}?`,
-      summarize: "Summarize this article",
-    },
-  },
   GENERATE_PROMPT: (data) => {
     const { title, url, selection, content } = data;
     const zh = navigator.language.toLowerCase().startsWith("zh");
