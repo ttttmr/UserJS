@@ -76,8 +76,11 @@ function waitForElement(selector, checkFn = (el) => true) {
 function initGeminiPage() {
   console.log("[Gemini] Initializing Gemini page");
 
-  // Check for prompt on load
-  const prompt = GM_getValue("gemini_prompt");
+  // Check for prompt from URL param or storage
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlPrompt = urlParams.get("q");
+  const prompt = urlPrompt || GM_getValue("gemini_prompt");
+
   if (prompt) {
     console.log("[Gemini] Found prompt, processing");
 
@@ -98,8 +101,10 @@ function initGeminiPage() {
       .then((icon) => {
         console.log("[Gemini] Send button ready, clicking");
         icon.closest("button").click();
-        // Clear prompt after sending
-        GM_deleteValue("gemini_prompt");
+        // Clear prompt after sending if it came from storage
+        if (!urlPrompt) {
+          GM_deleteValue("gemini_prompt");
+        }
       });
   }
 }
