@@ -3,7 +3,7 @@
 // @name:en      Ask AI Anywhere
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.3
+// @version      0.4
 // @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio
 // @description:en  Select page elements with shortcut and quickly send to Gemini/ChatGPT/AI Studio
 // @author       tmr
@@ -172,7 +172,7 @@ function injectSelectorStyles() {
 // Create overlay element
 function createOverlay() {
   const overlay = document.createElement("div");
-  overlay.className = "gemini-selector-overlay";
+  overlay.className = "ask-ai-anywhere-selector-overlay";
   overlay.style.display = "none";
   document.body.appendChild(overlay);
   return overlay;
