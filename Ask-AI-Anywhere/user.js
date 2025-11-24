@@ -1,21 +1,43 @@
 // ==UserScript==
-// @name         一键发送到Gemini
-// @name:en      Ask Gemini Anywhere
+// @name         一键发送到AI
+// @name:en      Ask AI Anywhere
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.2
-// @description  按快捷键选择页面元素，快速发送到Gemini
-// @description:en  Select page elements with shortcut and quickly send to Gemini
+// @version      0.3
+// @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio
+// @description:en  Select page elements with shortcut and quickly send to Gemini/ChatGPT/AI Studio
 // @author       tmr
 // @match        http://*/*
 // @match        https://*/*
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_deleteValue
+// @grant        GM_registerMenuCommand
+// @grant        GM_unregisterMenuCommand
 // ==/UserScript==
 
 const CONFIG = {
   SHORTCUT_TRIGGER: (e) => e.altKey && e.code === "Digit2",
+  PROVIDERS: {
+    gemini: {
+      name: "Gemini",
+      url: "https://gemini.google.com/app",
+      inputSelector: 'div[contenteditable="true"], textarea',
+      sendButtonSelector: 'button .mat-icon[data-mat-icon-name="send"]',
+    },
+    chatgpt: {
+      name: "ChatGPT",
+      url: "https://chatgpt.com/",
+      inputSelector: "#prompt-textarea p",
+      sendButtonSelector: 'button[data-testid="send-button"]',
+    },
+    aistudio: {
+      name: "AI Studio",
+      url: "https://aistudio.google.com/prompts/new_chat",
+      inputSelector: "ms-autosize-textarea textarea",
+      sendButtonSelector: 'button[aria-label="Run"]',
+    },
+  },
   GENERATE_PROMPT: (data) => {
     const { title, url, selection, content } = data;
     const zh = navigator.language.toLowerCase().startsWith("zh");
@@ -40,9 +62,9 @@ const CONFIG = {
       }
     } else {
       if (zh) {
-        prompts.push("总结这篇文章");
+        prompts.push("使用通俗的语言总结这篇文章");
       } else {
-        prompts.push("Summarize this article");
+        prompts.push("Summarize this article in plain language");
       }
     }
     return prompts.join("\n");
@@ -72,39 +94,43 @@ function waitForElement(selector, checkFn = (el) => true) {
   });
 }
 
-// Initialize Gemini page to receive prompts
-function initGeminiPage() {
-  console.log("[Gemini] Initializing Gemini page");
+// Initialize Provider page to receive prompts
+function initProviderPage(providerConfig) {
+  console.log(`[Ask] Initializing ${providerConfig.name} page`);
 
   // Check for prompt from URL param or storage
   const urlParams = new URLSearchParams(window.location.search);
+  // Use a generic key 'ask_prompt'
   const urlPrompt = urlParams.get("q");
-  const prompt = urlPrompt || GM_getValue("gemini_prompt");
+  const prompt = urlPrompt || GM_getValue("ask_prompt");
 
   if (prompt) {
-    console.log("[Gemini] Found prompt, processing");
+    console.log("[Ask] Found prompt, processing");
 
-    waitForElement('div[contenteditable="true"], textarea')
+    waitForElement(providerConfig.inputSelector)
       .then((inputBox) => {
-        console.log("[Gemini] Input box found, filling prompt");
+        console.log("[Ask] Input box found, filling prompt");
         inputBox.focus();
-        inputBox.textContent = prompt;
+        inputBox.value = prompt; // For textarea
+        inputBox.textContent = prompt; // For contenteditable
+
         inputBox.dispatchEvent(new Event("input", { bubbles: true }));
-        return waitForElement(
-          'button .mat-icon[data-mat-icon-name="send"]',
-          (icon) => {
-            const btn = icon.closest("button");
-            return btn && !btn.disabled;
-          }
-        );
+        inputBox.dispatchEvent(new Event("change", { bubbles: true }));
+
+        return waitForElement(providerConfig.sendButtonSelector, (btn) => {
+          return !btn.disabled;
+        });
       })
-      .then((icon) => {
-        console.log("[Gemini] Send button ready, clicking");
-        icon.closest("button").click();
-        // Clear prompt after sending if it came from storage
-        if (!urlPrompt) {
-          GM_deleteValue("gemini_prompt");
-        }
+      .then((btn) => {
+        console.log("[Ask] Send button ready, clicking");
+        // Small delay to ensure UI is ready
+        setTimeout(() => {
+          btn.click();
+          // Clear prompt after sending if it came from storage
+          if (!urlPrompt) {
+            GM_deleteValue("ask_prompt");
+          }
+        }, 500);
       });
   }
 }
@@ -119,12 +145,12 @@ let selectorState = {
 
 // Create and inject selector styles
 function injectSelectorStyles() {
-  if (document.getElementById("gemini-selector-styles")) return;
+  if (document.getElementById("ask-ai-anywhere-selector-styles")) return;
 
   const style = document.createElement("style");
-  style.id = "gemini-selector-styles";
+  style.id = "ask-ai-anywhere-selector-styles";
   style.textContent = `
-    .gemini-selector-overlay {
+    .ask-ai-anywhere-selector-overlay {
       position: absolute;
       border: 3px solid #4285f4;
       background: rgba(66, 133, 244, 0.1);
@@ -133,10 +159,10 @@ function injectSelectorStyles() {
       transition: all 0.1s ease;
       box-shadow: 0 0 0 1px rgba(66, 133, 244, 0.3);
     }
-    .gemini-selector-active {
+    .ask-ai-anywhere-selector-active {
       cursor: crosshair !important;
     }
-    .gemini-selector-active * {
+    .ask-ai-anywhere-selector-active * {
       cursor: crosshair !important;
     }
   `;
@@ -225,7 +251,7 @@ function activateSelector(onSelect) {
   selectorState.active = true;
   selectorState.onSelect = onSelect;
 
-  document.body.classList.add("gemini-selector-active");
+  document.body.classList.add("ask-ai-anywhere-selector-active");
 
   // Add event listeners with capture to intercept all events
   document.addEventListener("mousemove", handleMouseMove, true);
@@ -239,7 +265,7 @@ function deactivateSelector() {
 
   console.log("[Selector] Deactivating DOM selector");
 
-  document.body.classList.remove("gemini-selector-active");
+  document.body.classList.remove("ask-ai-anywhere-selector-active");
 
   // Remove event listeners
   document.removeEventListener("mousemove", handleMouseMove, true);
@@ -277,22 +303,58 @@ function handleShortcut(e) {
       promptText.length
     );
 
-    GM_setValue("gemini_prompt", promptText);
+    GM_setValue("ask_prompt", promptText);
 
-    const win = window.open(`https://gemini.google.com/app`, "_blank");
+    const currentProviderKey = GM_getValue("provider", "gemini");
+    const provider =
+      CONFIG.PROVIDERS[currentProviderKey] || CONFIG.PROVIDERS.gemini;
+
+    const win = window.open(provider.url, "_blank");
     if (!win) {
       console.log("[Source] Failed to open window");
       return;
     }
-    console.log("[Source] Gemini window opened");
+    console.log(`[Source] ${provider.name} window opened`);
+  });
+}
+
+let menuIds = [];
+
+// Register menu command to switch provider
+function registerMenuCommands() {
+  // Unregister existing commands
+  for (const id of menuIds) {
+    GM_unregisterMenuCommand(id);
+  }
+  menuIds = [];
+
+  const currentProviderKey = GM_getValue("provider", "gemini");
+
+  Object.entries(CONFIG.PROVIDERS).forEach(([key, config]) => {
+    const isCurrent = currentProviderKey === key;
+    const title = isCurrent ? `✅ ${config.name}` : `⬜ ${config.name}`;
+
+    const id = GM_registerMenuCommand(title, () => {
+      GM_setValue("provider", key);
+      registerMenuCommands(); // Re-register to update checkmarks
+    });
+    menuIds.push(id);
   });
 }
 
 (function () {
   "use strict";
-  if (window.location.host === "gemini.google.com") {
-    initGeminiPage();
-  } else {
-    window.addEventListener("keydown", handleShortcut);
+
+  // Check if we are on a provider page
+  const currentUrl = window.location.href;
+  for (const [key, config] of Object.entries(CONFIG.PROVIDERS)) {
+    if (currentUrl.startsWith(config.url)) {
+      initProviderPage(config);
+      return; // Exit if we are on a provider page
+    }
   }
+
+  // Otherwise, we are on a source page
+  registerMenuCommands();
+  window.addEventListener("keydown", handleShortcut);
 })();
