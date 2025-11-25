@@ -14,6 +14,7 @@ A userscript that allows you to quickly send page content to AI (Gemini, ChatGPT
 - **Gemini** (Default)
 - **ChatGPT**
 - **Google AI Studio**
+- **DeepSeek**
 
 You can switch between providers using the Tampermonkey menu command "Switch Provider". The script will remember your choice.
 

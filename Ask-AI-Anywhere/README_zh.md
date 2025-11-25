@@ -14,6 +14,7 @@
 - **Gemini** (默认)
 - **ChatGPT**
 - **Google AI Studio**
+- **DeepSeek**
 
 你可以通过 Tampermonkey 菜单中的 "Switch Provider" (切换服务商) 选项在这些服务商之间切换。脚本会记住你的选择。
 

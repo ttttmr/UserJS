@@ -3,9 +3,9 @@
 // @name:en      Ask AI Anywhere
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.4
-// @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio
-// @description:en  Select page elements with shortcut and quickly send to Gemini/ChatGPT/AI Studio
+// @version      0.5
+// @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio/DeepSeek
+// @description:en  Select page elements with shortcut and quickly send to Gemini/ChatGPT/AI Studio/DeepSeek
 // @author       tmr
 // @match        http://*/*
 // @match        https://*/*
@@ -28,7 +28,7 @@ const CONFIG = {
     chatgpt: {
       name: "ChatGPT",
       url: "https://chatgpt.com/",
-      inputSelector: "#prompt-textarea p",
+      inputSelector: "#prompt-textarea",
       sendButtonSelector: 'button[data-testid="send-button"]',
     },
     aistudio: {
@@ -36,6 +36,12 @@ const CONFIG = {
       url: "https://aistudio.google.com/prompts/new_chat",
       inputSelector: "ms-autosize-textarea textarea",
       sendButtonSelector: 'button[aria-label="Run"]',
+    },
+    deepseek: {
+      name: "DeepSeek",
+      url: "https://chat.deepseek.com/",
+      inputSelector: 'textarea[placeholder*="DeepSeek"]',
+      sendButtonSelector: 'div[role="button"].ds-icon-button',
     },
   },
   GENERATE_PROMPT: (data) => {
@@ -94,6 +100,155 @@ function waitForElement(selector, checkFn = (el) => true) {
   });
 }
 
+// DOM Selector Class
+class DomSelector {
+  constructor() {
+    this.state = {
+      active: false,
+      overlay: null,
+      currentElement: null,
+      onSelect: null,
+    };
+    this.boundHandleMouseMove = this.handleMouseMove.bind(this);
+    this.boundHandleClick = this.handleClick.bind(this);
+    this.boundHandleKeydown = this.handleKeydown.bind(this);
+  }
+
+  injectStyles() {
+    if (document.getElementById("ask-ai-anywhere-selector-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "ask-ai-anywhere-selector-styles";
+    style.textContent = `
+      .ask-ai-anywhere-selector-overlay {
+        position: absolute;
+        border: 3px solid #4285f4;
+        background: rgba(66, 133, 244, 0.1);
+        pointer-events: none;
+        z-index: 2147483647;
+        transition: all 0.1s ease;
+        box-shadow: 0 0 0 1px rgba(66, 133, 244, 0.3);
+      }
+      .ask-ai-anywhere-selector-active {
+        cursor: crosshair !important;
+      }
+      .ask-ai-anywhere-selector-active * {
+        cursor: crosshair !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  createOverlay() {
+    const overlay = document.createElement("div");
+    overlay.className = "ask-ai-anywhere-selector-overlay";
+    overlay.style.display = "none";
+    document.body.appendChild(overlay);
+    return overlay;
+  }
+
+  highlight(element) {
+    if (!this.state.overlay) return;
+
+    if (
+      !element ||
+      element === document.body ||
+      element === document.documentElement
+    ) {
+      this.state.overlay.style.display = "none";
+      this.state.currentElement = null;
+      return;
+    }
+
+    const rect = element.getBoundingClientRect();
+    const overlay = this.state.overlay;
+
+    overlay.style.display = "block";
+    overlay.style.left = `${rect.left + window.scrollX}px`;
+    overlay.style.top = `${rect.top + window.scrollY}px`;
+    overlay.style.width = `${rect.width}px`;
+    overlay.style.height = `${rect.height}px`;
+
+    this.state.currentElement = element;
+  }
+
+  handleMouseMove(e) {
+    if (!this.state.active) return;
+
+    e.stopPropagation();
+    const element = document.elementFromPoint(e.clientX, e.clientY);
+    this.highlight(element);
+  }
+
+  handleClick(e) {
+    if (!this.state.active) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const element = this.state.currentElement;
+    if (element && this.state.onSelect) {
+      const content = element.innerText || "";
+      this.state.onSelect(content);
+      this.deactivate();
+    }
+  }
+
+  handleKeydown(e) {
+    if (!this.state.active) return;
+
+    if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("[Selector] Canceled by user");
+      this.deactivate();
+    }
+  }
+
+  activate(onSelect) {
+    if (this.state.active) return;
+
+    console.log("[Selector] Activating DOM selector");
+
+    this.injectStyles();
+    this.state.overlay = this.createOverlay();
+    this.state.active = true;
+    this.state.onSelect = onSelect;
+
+    document.body.classList.add("ask-ai-anywhere-selector-active");
+
+    // Add event listeners with capture to intercept all events
+    document.addEventListener("mousemove", this.boundHandleMouseMove, true);
+    document.addEventListener("click", this.boundHandleClick, true);
+    document.addEventListener("keydown", this.boundHandleKeydown, true);
+  }
+
+  deactivate() {
+    if (!this.state.active) return;
+
+    console.log("[Selector] Deactivating DOM selector");
+
+    document.body.classList.remove("ask-ai-anywhere-selector-active");
+
+    // Remove event listeners
+    document.removeEventListener("mousemove", this.boundHandleMouseMove, true);
+    document.removeEventListener("click", this.boundHandleClick, true);
+    document.removeEventListener("keydown", this.boundHandleKeydown, true);
+
+    // Clean up overlay
+    if (this.state.overlay) {
+      this.state.overlay.remove();
+      this.state.overlay = null;
+    }
+
+    this.state.active = false;
+    this.state.currentElement = null;
+    this.state.onSelect = null;
+  }
+}
+
+const domSelector = new DomSelector();
+
 // Initialize Provider page to receive prompts
 function initProviderPage(providerConfig) {
   console.log(`[Ask] Initializing ${providerConfig.name} page`);
@@ -111,11 +266,28 @@ function initProviderPage(providerConfig) {
       .then((inputBox) => {
         console.log("[Ask] Input box found, filling prompt");
         inputBox.focus();
-        inputBox.value = prompt; // For textarea
-        inputBox.textContent = prompt; // For contenteditable
 
+        if (inputBox.tagName === "TEXTAREA") {
+          const valueSetter = Object.getOwnPropertyDescriptor(
+            window.HTMLTextAreaElement.prototype,
+            "value"
+          ).set;
+          valueSetter.call(inputBox, prompt);
+        } else {
+          inputBox.textContent = prompt;
+        }
         inputBox.dispatchEvent(new Event("input", { bubbles: true }));
         inputBox.dispatchEvent(new Event("change", { bubbles: true }));
+        inputBox.dispatchEvent(
+          new KeyboardEvent("keydown", {
+            key: "Enter",
+            code: "Enter",
+            keyCode: 13,
+            which: 13,
+            bubbles: true,
+            cancelable: true,
+          })
+        );
 
         return waitForElement(providerConfig.sendButtonSelector, (btn) => {
           return !btn.disabled;
@@ -135,154 +307,6 @@ function initProviderPage(providerConfig) {
   }
 }
 
-// DOM Selector State
-let selectorState = {
-  active: false,
-  overlay: null,
-  currentElement: null,
-  onSelect: null,
-};
-
-// Create and inject selector styles
-function injectSelectorStyles() {
-  if (document.getElementById("ask-ai-anywhere-selector-styles")) return;
-
-  const style = document.createElement("style");
-  style.id = "ask-ai-anywhere-selector-styles";
-  style.textContent = `
-    .ask-ai-anywhere-selector-overlay {
-      position: absolute;
-      border: 3px solid #4285f4;
-      background: rgba(66, 133, 244, 0.1);
-      pointer-events: none;
-      z-index: 2147483647;
-      transition: all 0.1s ease;
-      box-shadow: 0 0 0 1px rgba(66, 133, 244, 0.3);
-    }
-    .ask-ai-anywhere-selector-active {
-      cursor: crosshair !important;
-    }
-    .ask-ai-anywhere-selector-active * {
-      cursor: crosshair !important;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
-// Create overlay element
-function createOverlay() {
-  const overlay = document.createElement("div");
-  overlay.className = "ask-ai-anywhere-selector-overlay";
-  overlay.style.display = "none";
-  document.body.appendChild(overlay);
-  return overlay;
-}
-
-// Update overlay position to highlight element
-function highlightElement(element) {
-  if (!selectorState.overlay) return;
-
-  if (
-    !element ||
-    element === document.body ||
-    element === document.documentElement
-  ) {
-    selectorState.overlay.style.display = "none";
-    selectorState.currentElement = null;
-    return;
-  }
-
-  const rect = element.getBoundingClientRect();
-  const overlay = selectorState.overlay;
-
-  overlay.style.display = "block";
-  overlay.style.left = `${rect.left + window.scrollX}px`;
-  overlay.style.top = `${rect.top + window.scrollY}px`;
-  overlay.style.width = `${rect.width}px`;
-  overlay.style.height = `${rect.height}px`;
-
-  selectorState.currentElement = element;
-}
-
-// Mouse move handler for highlighting
-function handleMouseMove(e) {
-  if (!selectorState.active) return;
-
-  e.stopPropagation();
-  const element = document.elementFromPoint(e.clientX, e.clientY);
-  highlightElement(element);
-}
-
-// Click handler for selecting element
-function handleClick(e) {
-  if (!selectorState.active) return;
-
-  e.preventDefault();
-  e.stopPropagation();
-
-  const element = selectorState.currentElement;
-  if (element && selectorState.onSelect) {
-    const content = element.innerText || "";
-    selectorState.onSelect(content);
-    deactivateSelector();
-  }
-}
-
-// Keyboard handler for canceling
-function handleKeydown(e) {
-  if (!selectorState.active) return;
-
-  if (e.key === "Escape") {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("[Selector] Canceled by user");
-    deactivateSelector();
-  }
-}
-
-// Activate DOM selector
-function activateSelector(onSelect) {
-  if (selectorState.active) return;
-
-  console.log("[Selector] Activating DOM selector");
-
-  injectSelectorStyles();
-  selectorState.overlay = createOverlay();
-  selectorState.active = true;
-  selectorState.onSelect = onSelect;
-
-  document.body.classList.add("ask-ai-anywhere-selector-active");
-
-  // Add event listeners with capture to intercept all events
-  document.addEventListener("mousemove", handleMouseMove, true);
-  document.addEventListener("click", handleClick, true);
-  document.addEventListener("keydown", handleKeydown, true);
-}
-
-// Deactivate DOM selector
-function deactivateSelector() {
-  if (!selectorState.active) return;
-
-  console.log("[Selector] Deactivating DOM selector");
-
-  document.body.classList.remove("ask-ai-anywhere-selector-active");
-
-  // Remove event listeners
-  document.removeEventListener("mousemove", handleMouseMove, true);
-  document.removeEventListener("click", handleClick, true);
-  document.removeEventListener("keydown", handleKeydown, true);
-
-  // Clean up overlay
-  if (selectorState.overlay) {
-    selectorState.overlay.remove();
-    selectorState.overlay = null;
-  }
-
-  selectorState.active = false;
-  selectorState.currentElement = null;
-  selectorState.onSelect = null;
-}
-
 // Handle shortcut trigger
 function handleShortcut(e) {
   if (!CONFIG.SHORTCUT_TRIGGER(e)) return;
@@ -291,7 +315,7 @@ function handleShortcut(e) {
   e.preventDefault();
 
   const selection = window.getSelection().toString().trim();
-  activateSelector((content) => {
+  domSelector.activate((content) => {
     const promptText = CONFIG.GENERATE_PROMPT({
       title: document.title,
       url: window.location.href,
@@ -319,7 +343,6 @@ function handleShortcut(e) {
 }
 
 let menuIds = [];
-
 // Register menu command to switch provider
 function registerMenuCommands() {
   // Unregister existing commands
