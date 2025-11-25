@@ -3,7 +3,7 @@
 // @name:en      Ask AI Anywhere
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.5
+// @version      0.6
 // @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio/DeepSeek
 // @description:en  Select page elements with shortcut and quickly send to Gemini/ChatGPT/AI Studio/DeepSeek
 // @author       tmr
@@ -14,6 +14,7 @@
 // @grant        GM_deleteValue
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
+// @grant        GM_addStyle
 // ==/UserScript==
 
 const CONFIG = {
@@ -117,9 +118,7 @@ class DomSelector {
   injectStyles() {
     if (document.getElementById("ask-ai-anywhere-selector-styles")) return;
 
-    const style = document.createElement("style");
-    style.id = "ask-ai-anywhere-selector-styles";
-    style.textContent = `
+    const css = `
       .ask-ai-anywhere-selector-overlay {
         position: absolute;
         border: 3px solid #4285f4;
@@ -136,7 +135,10 @@ class DomSelector {
         cursor: crosshair !important;
       }
     `;
-    document.head.appendChild(style);
+    const style = GM_addStyle(css);
+    if (style) {
+      style.id = "ask-ai-anywhere-selector-styles";
+    }
   }
 
   createOverlay() {
@@ -150,11 +152,7 @@ class DomSelector {
   highlight(element) {
     if (!this.state.overlay) return;
 
-    if (
-      !element ||
-      element === document.body ||
-      element === document.documentElement
-    ) {
+    if (!element || element === document.documentElement) {
       this.state.overlay.style.display = "none";
       this.state.currentElement = null;
       return;
