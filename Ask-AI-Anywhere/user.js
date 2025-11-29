@@ -3,7 +3,7 @@
 // @name:en      Ask AI Anywhere (Support Image)
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.7
+// @version      0.8
 // @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio/DeepSeek
 // @description:en  Quickly send web content (text & images) to AI (Gemini, ChatGPT, AI Studio, DeepSeek) with a shortcut
 // @author       tmr
@@ -123,11 +123,23 @@ function getImageSrc(imgNode) {
   for (const src of candidates) {
     if (src && !src.startsWith("data:")) {
       try {
-        return new URL(src, window.location.href).href;
+        return new URL(src, location.href).href;
       } catch {}
     }
   }
   return null;
+}
+
+// Helper to check if image should be included (filters out icons, avatars, etc.)
+function shouldIncludeImage(imgNode) {
+  // Filter by keywords
+  const keywords = ["avatar", "icon", "logo", "profile"];
+  const checkStr = `${imgNode.className || ""} ${imgNode.alt || ""} ${
+    imgNode.id || ""
+  }`.toLowerCase();
+  if (keywords.some((k) => checkStr.includes(k))) return false;
+
+  return true;
 }
 
 // Helper to extract text (Markdown) and images from element or fragment
@@ -159,7 +171,7 @@ function extractContent(elementOrFragment) {
     switch (tagName) {
       case "IMG": {
         const src = getImageSrc(node);
-        if (src) {
+        if (src && shouldIncludeImage(node)) {
           const filename = `img_${images.length + 1}`;
           images.push({ url: src, filename });
           return `\n![${filename}]\n`;
@@ -191,7 +203,22 @@ function extractContent(elementOrFragment) {
         return `*${content}*`;
       case "A": {
         const href = node.href;
-        return href ? `[${content}](${href})` : content;
+        if (href) {
+          try {
+            const url = new URL(href, location.href);
+            const isImage =
+              ["http:", "https:"].includes(url.protocol) &&
+              /\.(jpeg|jpg|gif|png|webp|svg|bmp)$/i.test(url.pathname);
+
+            if (isImage) {
+              const filename = `img_${images.length + 1}`;
+              images.push({ url: href, filename });
+              return `\n![${filename}]\n`;
+            } else {
+              return `[${content}](${href})`;
+            }
+          } catch {}
+        }
       }
       case "CODE":
         return `\`${content}\``;
@@ -458,7 +485,6 @@ async function initProviderPage(providerConfig) {
     // 1. Paste Images
     const rawFiles = await imageFetchPromise;
     const files = rawFiles.filter((f) => f !== null);
-
     if (files.length > 0) {
       console.log(
         `[Ask] Waiting for window load to paste ${files.length} images...`
@@ -512,17 +538,6 @@ async function initProviderPage(providerConfig) {
     }
 
     // 3. Send
-    inputBox.dispatchEvent(
-      new KeyboardEvent("keydown", {
-        key: "Enter",
-        code: "Enter",
-        keyCode: 13,
-        which: 13,
-        bubbles: true,
-        cancelable: true,
-      })
-    );
-
     const btn = await waitForElement(
       providerConfig.sendButtonSelector,
       (btn) => {
@@ -532,12 +547,11 @@ async function initProviderPage(providerConfig) {
 
     if (btn) {
       console.log("[Ask] Send button ready, clicking");
-      setTimeout(() => {
-        btn.click();
-        // Cleanup
-        GM_deleteValue("ask_prompt");
-        GM_deleteValue("ask_images");
-      }, 500);
+      btn.click();
+      // Cleanup
+      console.log("[Ask] Cleanup");
+      GM_deleteValue("ask_prompt");
+      GM_deleteValue("ask_images");
     }
   } catch (err) {
     console.error("[Ask] Error processing content", err);
@@ -584,7 +598,7 @@ function handleShortcut(e) {
 
     const promptText = CONFIG.GENERATE_PROMPT({
       title: document.title,
-      url: window.location.href,
+      url: location.href,
       selection: selectionText,
       content,
       images: uniqueImages,
@@ -601,7 +615,7 @@ function handleShortcut(e) {
         "ask_images",
         JSON.stringify({
           urls: uniqueImages,
-          referrer: window.location.href,
+          referrer: location.href,
         })
       );
     }
@@ -645,7 +659,7 @@ function registerMenuCommands() {
   "use strict";
 
   // Check if we are on a provider page
-  const currentUrl = window.location.href;
+  const currentUrl = location.href;
   for (const [key, config] of Object.entries(CONFIG.PROVIDERS)) {
     if (currentUrl.startsWith(config.url)) {
       await initProviderPage(config);
