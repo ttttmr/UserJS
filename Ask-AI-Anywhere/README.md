@@ -2,7 +2,10 @@
 
 [中文](README_zh.md)
 
-A userscript that allows you to quickly send page content to AI (Gemini, ChatGPT, AI Studio) for summary or conversation.
+A userscript that allows you to quickly send page content (text & images) to AI (Gemini, ChatGPT, AI Studio, DeepSeek) for summary or conversation.
+
+- **Markdown Support**: Web content is automatically converted to Markdown format.
+- **Image Support**: Images within the selected content are also sent to the AI.
 
 ## Installation
 

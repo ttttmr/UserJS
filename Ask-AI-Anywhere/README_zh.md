@@ -2,7 +2,10 @@
 
 [English](README.md)
 
-这是一个用户脚本，允许你快速将网页内容发送到 AI (Gemini, ChatGPT, AI Studio) 进行总结或对话。
+这是一个用户脚本，允许你快速将网页内容发送到 AI (Gemini, ChatGPT, AI Studio, DeepSeek) 进行总结或对话。
+
+- **Markdown 格式**：网页内容会自动转换为 Markdown 格式。
+- **支持图片**：如果包含图片，图片也会被一起发送。
 
 ## 安装
 
