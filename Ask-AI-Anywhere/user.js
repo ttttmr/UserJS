@@ -3,7 +3,7 @@
 // @name:en      Ask AI Anywhere (Support Image)
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.8
+// @version      0.9
 // @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio/DeepSeek
 // @description:en  Quickly send web content (text & images) to AI (Gemini, ChatGPT, AI Studio, DeepSeek) with a shortcut
 // @author       tmr
@@ -51,11 +51,9 @@ const CONFIG = {
     const zh = navigator.language.toLowerCase().startsWith("zh");
     const prompts = [];
     if (zh) {
-      prompts.push(`我正在阅读 ${url}`);
-      prompts.push(`标题：${title}`);
+      prompts.push(`我正在阅读：${title}`);
     } else {
-      prompts.push(`I'm reading ${url}`);
-      prompts.push(`Title: ${title}`);
+      prompts.push(`I'm reading: ${title}`);
     }
     if (content) {
       if (zh) {
@@ -244,9 +242,7 @@ function extractContent(elementOrFragment) {
   text = traverse(elementOrFragment);
 
   // Clean up whitespace
-  text = text
-    .replace(/\n\s*\n/g, "\n\n") // Max 2 newlines
-    .trim();
+  text = text.replace(/\n(\s*\n)+/g, "\n").trim();
 
   // Deduplicate images
   const uniqueImages = [];
