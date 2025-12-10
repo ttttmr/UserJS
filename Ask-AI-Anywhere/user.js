@@ -3,7 +3,7 @@
 // @name:en      Ask AI Anywhere (Support Image)
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.9
+// @version      0.10
 // @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio/DeepSeek
 // @description:en  Quickly send web content (text & images) to AI (Gemini, ChatGPT, AI Studio, DeepSeek) with a shortcut
 // @author       tmr
@@ -258,7 +258,7 @@ function extractContent(elementOrFragment) {
 }
 
 // Helper to fetch image as File object
-function fetchImageAsFile(url, filename, referrer) {
+function fetchImageAsFile(url, filename, referrer, timeout = 5000) {
   return new Promise((resolve, reject) => {
     GM_xmlhttpRequest({
       method: "GET",
@@ -266,6 +266,7 @@ function fetchImageAsFile(url, filename, referrer) {
       headers: {
         Referer: referrer,
       },
+      timeout: timeout,
       responseType: "blob",
       onload: (response) => {
         if (response.status === 200) {
@@ -276,6 +277,7 @@ function fetchImageAsFile(url, filename, referrer) {
           reject(new Error(`Failed to fetch image: ${response.status}`));
         }
       },
+      ontimeout: () => reject(new Error("Timeout fetching image")),
       onerror: (err) => reject(err),
     });
   });
