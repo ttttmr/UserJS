@@ -3,7 +3,7 @@
 // @name:en      Ask AI Anywhere (Support Image)
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.10
+// @version      0.11
 // @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio/DeepSeek
 // @description:en  Quickly send web content (text & images) to AI (Gemini, ChatGPT, AI Studio, DeepSeek) with a shortcut
 // @author       tmr
@@ -583,7 +583,8 @@ function handleShortcut(e) {
     const { text: content, images: elementImages } = extractContent(element);
 
     // Combine images and deduplicate
-    const allImages = [...selectionImages, ...elementImages];
+    const includeImages = GM_getValue("include_images", true);
+    const allImages = includeImages ? [...selectionImages, ...elementImages] : [];
     // Deduplicate again based on URL
     const uniqueImages = [];
     const seenUrls = new Set();
@@ -599,7 +600,7 @@ function handleShortcut(e) {
       url: location.href,
       selection: selectionText,
       content,
-      images: uniqueImages,
+      images: uniqueImages.length ? uniqueImages : null,
     });
     console.log(
       "[Source] Generated prompt from element, length:",
@@ -651,6 +652,13 @@ function registerMenuCommands() {
     });
     menuIds.push(id);
   });
+
+  const includeImages = GM_getValue("include_images", true);
+  const imageStatus = includeImages ? "✅" : "⬜";
+  menuIds.push(GM_registerMenuCommand(`${imageStatus} 包含图片 (Include Images)`, () => {
+    GM_setValue("include_images", !includeImages);
+    registerMenuCommands();
+  }));
 }
 
 (async function () {
