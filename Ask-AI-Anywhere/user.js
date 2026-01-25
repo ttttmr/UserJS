@@ -3,7 +3,7 @@
 // @name:en      Ask AI Anywhere (Support Image)
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.12
+// @version      0.13
 // @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio/DeepSeek
 // @description:en  Quickly send web content (text & images) to AI (Gemini, ChatGPT, AI Studio, DeepSeek) with a shortcut
 // @author       tmr
@@ -19,17 +19,18 @@
 // @run-at       document-start
 // ==/UserScript==
 
-try {
-  const originalAttachShadow = Element.prototype.attachShadow;
-  Element.prototype.attachShadow = function (init) {
-    if (init && init.mode === "closed") {
-      init.mode = "open";
-    }
-    return originalAttachShadow.call(this, init);
-  };
-} catch (e) {
-  console.error("[Ask] Failed to patch attachShadow", e);
-}
+// cloudflare error
+// try {
+//   const originalAttachShadow = Element.prototype.attachShadow;
+//   Element.prototype.attachShadow = function (init) {
+//     if (init && init.mode === "closed") {
+//       init.mode = "open";
+//     }
+//     return originalAttachShadow.call(this, init);
+//   };
+// } catch (e) {
+//   console.error("[Ask] Failed to patch attachShadow", e);
+// }
 
 const CONFIG = {
   SHORTCUT_TRIGGER: (e) => e.altKey && e.code === "Digit2",
