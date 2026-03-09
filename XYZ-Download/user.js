@@ -2,9 +2,9 @@
 // @name         小宇宙播客下载器
 // @namespace    https://blog.xlab.app/
 // @more         https://github.com/ttttmr/UserJS
-// @version      0.1
+// @version      0.2
 // @description  在播放键旁边添加下载按钮
-// @author       Antigravity
+// @author       tmr
 // @match        https://www.xiaoyuzhoufm.com/episode/*
 // @grant        GM_download
 // ==/UserScript==
@@ -44,7 +44,7 @@
         btn.style.cssText = `
             margin-left: 15px !important;
             padding: 4px 14px !important;
-            background-color: #3f58b1 !important;
+            background-color: var(--theme-color);
             color: #ffffff !important;
             border: none !important;
             border-radius: 20px !important;
@@ -63,11 +63,9 @@
         `;
 
         btn.onmouseover = () => { 
-            btn.style.backgroundColor = '#2d4494';
             btn.style.transform = 'scale(1.05)';
         };
         btn.onmouseout = () => { 
-            btn.style.backgroundColor = '#3f58b1';
             btn.style.transform = 'scale(1)';
         };
 
