@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         自动网页全屏播放
 // @namespace    https://blog.xlab.app/
-// @more         https://github.com/ttttmr/UserJS
-// @version      0.9
+// @supportURL   https://github.com/ttttmr/UserJS
+// @version      0.10
 // @description  自动网页全屏播放，已支持Bilibili，腾讯视频
 // @author       tmr
 // @match        https://www.bilibili.com/video/av*

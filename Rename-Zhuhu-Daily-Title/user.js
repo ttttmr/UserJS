@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         修改知乎日报标题
 // @namespace    https://blog.xlab.app/
-// @more         https://github.com/ttttmr/UserJS
-// @version      0.6
+// @supportURL   https://github.com/ttttmr/UserJS
+// @version      0.7
 // @description  修改知乎日报标题为文章标题
 // @author       tmr
 // @match        *://daily.zhihu.com/story/*

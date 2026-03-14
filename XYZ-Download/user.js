@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         小宇宙播客下载器
 // @namespace    https://blog.xlab.app/
-// @more         https://github.com/ttttmr/UserJS
-// @version      0.2
+// @supportURL   https://github.com/ttttmr/UserJS
+// @version      0.3
 // @description  在播放键旁边添加下载按钮
 // @author       tmr
 // @match        https://www.xiaoyuzhoufm.com/episode/*

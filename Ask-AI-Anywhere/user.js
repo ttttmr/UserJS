@@ -2,8 +2,8 @@
 // @name         一键发送到AI（支持图文）
 // @name:en      Ask AI Anywhere (Support Image)
 // @namespace    https://blog.xlab.app/
-// @more         https://github.com/ttttmr/UserJS
-// @version      0.13
+// @supportURL   https://github.com/ttttmr/UserJS
+// @version      0.14
 // @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio/DeepSeek
 // @description:en  Quickly send web content (text & images) to AI (Gemini, ChatGPT, AI Studio, DeepSeek) with a shortcut
 // @author       tmr

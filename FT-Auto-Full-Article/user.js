@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         FT中文网自动加载全文
 // @namespace    https://blog.xlab.app/
-// @more         https://github.com/ttttmr/UserJS
-// @version      1.0
+// @supportURL   https://github.com/ttttmr/UserJS
+// @version      1.1
 // @description  FT中文网自动加载全文，并修改所有FT中文网链接，增加全文参数
 // @author       tmr
 // @match        http://*/*

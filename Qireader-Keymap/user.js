@@ -1,14 +1,14 @@
 // ==UserScript==
-// @name        Qireader keymap
-// @namespace   https://blog.xlab.app/
-// @more        https://github.com/ttttmr/UserJS
-// @match       https://www.qireader.com.cn/*
-// @match       https://www.qireader.com/*
-// @grant       none
-// @version     0.3
-// @author      tmr
-// @grant       GM_openInTab
-// @inject-into content
+// @name         Qireader keymap
+// @namespace    https://blog.xlab.app/
+// @supportURL   https://github.com/ttttmr/UserJS
+// @match        https://www.qireader.com.cn/*
+// @match        https://www.qireader.com/*
+// @grant        none
+// @version      0.4
+// @author       tmr
+// @grant        GM_openInTab
+// @inject-into  content
 // ==/UserScript==
 
 (function () {
