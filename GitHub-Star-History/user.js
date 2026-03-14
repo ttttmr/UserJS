@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         GitHub Star History
 // @namespace    https://blog.xlab.app/
-// @more         https://github.com/ttttmr/UserJS
-// @version      0.2
+// @supportURL   https://github.com/ttttmr/UserJS
+// @version      0.3
 // @description  GitHub Star History Link
 // @author       tmr
 // @match        https://github.com/*/*
@@ -34,20 +34,35 @@
   link.appendChild(logo);
 
   let l = document.createElement("li");
+  l.id = "github-star-history-item";
   l.appendChild(link);
 
-  let count = 0;
   function run() {
-    if (document.readyState == "complete" && count > 5) {
-      return;
-    }
-    count++;
+    if (document.getElementById('github-star-history-item')) return;
+
     let n = document.querySelector(".pagehead-actions");
-    if (n == null) {
-      setTimeout(run, 500);
-      return;
+    if (n) {
+      n.appendChild(l);
     }
-    n.appendChild(l);
   }
+  
   run();
+  document.addEventListener('turbo:render', run);
+  document.addEventListener('turbo:load', run);
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.addedNodes.length > 0) {
+        if (document.querySelector('.pagehead-actions') && !document.getElementById('github-star-history-item')) {
+          run();
+          break;
+        }
+      }
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
 })();
