@@ -3,7 +3,7 @@
 // @name:en      Ask AI Anywhere (Support Image)
 // @namespace    https://blog.xlab.app/
 // @supportURL   https://github.com/ttttmr/UserJS
-// @version      0.14
+// @version      0.15
 // @description  按快捷键选择页面元素，快速发送到Gemini/ChatGPT/AI Studio/DeepSeek
 // @description:en  Quickly send web content (text & images) to AI (Gemini, ChatGPT, AI Studio, DeepSeek) with a shortcut
 // @author       tmr
@@ -44,8 +44,10 @@ const CONFIG = {
     chatgpt: {
       name: "ChatGPT",
       url: "https://chatgpt.com/",
-      inputSelector: "#prompt-textarea",
-      sendButtonSelector: 'button[data-testid="send-button"]',
+      inputSelector:
+        '[contenteditable][role="textbox"], #prompt-textarea',
+      sendButtonSelector:
+        '[type="submit"], [data-testid="send-button"]',
     },
     aistudio: {
       name: "AI Studio",
@@ -107,15 +109,21 @@ const CONFIG = {
 
 // Helper to wait for element using MutationObserver
 function waitForElement(selector, checkFn = (el) => true) {
+  return waitForDom(() =>
+    Array.from(document.querySelectorAll(selector)).find(checkFn)
+  );
+}
+
+function waitForDom(checkFn) {
   return new Promise((resolve) => {
-    const element = document.querySelector(selector);
-    if (element && checkFn(element)) {
+    const element = checkFn();
+    if (element) {
       return resolve(element);
     }
 
     const observer = new MutationObserver(() => {
-      const element = document.querySelector(selector);
-      if (element && checkFn(element)) {
+      const element = checkFn();
+      if (element) {
         resolve(element);
         observer.disconnect();
       }
@@ -124,8 +132,85 @@ function waitForElement(selector, checkFn = (el) => true) {
     observer.observe(document.body, {
       childList: true,
       subtree: true,
+      attributes: true,
+      characterData: true,
     });
   });
+}
+
+// Match attachment names through visible text or standard accessibility labels.
+function hasComposerAttachment(root, file) {
+  let text = root.textContent;
+  for (const editor of root.querySelectorAll("textarea, [contenteditable]")) {
+    text = text.replace(editor.textContent, "");
+  }
+  if (text.includes(file.name)) return true;
+  return Array.from(root.querySelectorAll("img, [aria-label], [title]"))
+    .some((element) => [element.alt, element.getAttribute("aria-label"), element.title]
+      .some((label) => label?.includes(file.name)));
+}
+
+// Ignore hidden SPA composers and controls that are not ready for interaction.
+function isComposerControlReady(element) {
+  return element.getClientRects().length > 0 &&
+    window.getComputedStyle(element).visibility !== "hidden" &&
+    !element.disabled && !element.readOnly &&
+    element.getAttribute("contenteditable") !== "false" &&
+    element.getAttribute("aria-disabled") !== "true";
+}
+
+// Use the editor's form or nearest submit container instead of page-wide buttons.
+function getComposerSubmitRoot(inputBox, sendButtonSelector) {
+  const form = inputBox.closest('form, [role="form"]');
+  if (form) return form;
+
+  for (let parent = inputBox.parentElement; parent && parent !== document.body;
+    parent = parent.parentElement) {
+    if (parent.querySelector(sendButtonSelector)) return parent;
+  }
+  return null;
+}
+
+// Let rich-text editors handle clipboard data, including their internal state.
+function pasteIntoComposer(inputBox, dataTransfer) {
+  const event = new ClipboardEvent("paste", {
+    bubbles: true,
+    cancelable: true,
+    clipboardData: dataTransfer,
+  });
+  if (!event.clipboardData) {
+    Object.defineProperty(event, "clipboardData", { value: dataTransfer });
+  }
+  return !inputBox.dispatchEvent(event);
+}
+
+function insertComposerText(inputBox, prompt) {
+  inputBox.focus();
+  if (inputBox.tagName === "TEXTAREA") {
+    const valueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLTextAreaElement.prototype,
+      "value"
+    ).set;
+    valueSetter.call(inputBox, prompt);
+  } else {
+    const dataTransfer = new DataTransfer();
+    dataTransfer.setData("text/plain", prompt);
+    if (!pasteIntoComposer(inputBox, dataTransfer)) {
+      // A synthetic paste has no native default action. Insert at the end
+      // through the browser when the editor does not handle paste itself.
+      const range = document.createRange();
+      range.selectNodeContents(inputBox);
+      range.collapse(false);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      if (!document.execCommand("insertText", false, prompt)) {
+        inputBox.appendChild(document.createTextNode(prompt));
+      }
+    }
+  }
+  inputBox.dispatchEvent(new Event("input", { bubbles: true }));
+  inputBox.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
 // Helper to get valid image source, handling lazy loading and relative URLs
@@ -520,19 +605,22 @@ async function initProviderPage(providerConfig) {
   }
 
   try {
-    const inputBox = await waitForElement(providerConfig.inputSelector);
-    console.log("[Ask] Input box found");
-    inputBox.focus();
-
-    // 1. Paste Images
+    // Finish network work before holding a reference to an SPA editor.
     const rawFiles = await imageFetchPromise;
     const files = rawFiles.filter((f) => f !== null);
-    if (files.length > 0) {
-      console.log(
-        `[Ask] Waiting for window load to paste ${files.length} images...`
-      );
+    const inputBox = await waitForElement(
+      providerConfig.inputSelector,
+      isComposerControlReady
+    );
+    console.log("[Ask] Input box found");
+    inputBox.focus();
+    const root = await waitForDom(() =>
+      getComposerSubmitRoot(inputBox, providerConfig.sendButtonSelector)
+    );
 
-      console.log(`[Ask] Window loaded, pasting images`);
+    // 1. Paste Images
+    if (files.length > 0) {
+      console.log(`[Ask] Adding ${files.length} images`);
       const dataTransfer = new DataTransfer();
       files.forEach((file) => {
         console.log(
@@ -541,60 +629,42 @@ async function initProviderPage(providerConfig) {
         dataTransfer.items.add(file);
       });
 
-      const pasteEvent = new ClipboardEvent("paste", {
-        bubbles: true,
-        cancelable: true,
-        clipboardData: dataTransfer,
-      });
-
-      // Fallback for some browsers/environments where constructor doesn't set clipboardData correctly
-      if (!pasteEvent.clipboardData) {
-        Object.defineProperty(pasteEvent, "clipboardData", {
-          value: dataTransfer,
-          writable: false,
-        });
+      const fileInput = Array.from(
+        root.querySelectorAll('input[type="file"]:not([capture])')
+      ).find((input) => input.multiple || files.length === 1);
+      if (fileInput) {
+        fileInput.files = dataTransfer.files;
+        fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+        // File pickers can prepare uploads asynchronously before disabling submit.
+        await waitForDom(() => files.every((file) => hasComposerAttachment(root, file)));
+      } else {
+        pasteIntoComposer(inputBox, dataTransfer);
       }
-
-      inputBox.dispatchEvent(pasteEvent);
     }
 
     // 2. Fill Text
     if (prompt) {
       console.log("[Ask] Filling text prompt");
-      inputBox.focus(); // Ensure focus is back on input
-      if (inputBox.tagName === "TEXTAREA") {
-        const valueSetter = Object.getOwnPropertyDescriptor(
-          window.HTMLTextAreaElement.prototype,
-          "value"
-        ).set;
-        valueSetter.call(inputBox, prompt);
-      } else {
-        // Safe text insertion for contenteditable
-        // If we just pasted images, we don't want to wipe them out with textContent = ...
-        // So we append a text node.
-        const textNode = document.createTextNode(prompt);
-        inputBox.appendChild(textNode);
-      }
-      inputBox.dispatchEvent(new Event("input", { bubbles: true }));
-      inputBox.dispatchEvent(new Event("change", { bubbles: true }));
+      insertComposerText(inputBox, prompt);
     }
 
-    // 3. Send
-    const btn = await waitForElement(
-      providerConfig.sendButtonSelector,
-      (btn) => {
-        return !btn.disabled && btn.getAttribute("aria-disabled") !== "true";
-      }
+    // 3. Wait for upload and editor readiness, then send.
+    const btn = await waitForDom(() =>
+      !root.querySelector('[role="progressbar"], [aria-busy="true"]') &&
+      Array.from(root.querySelectorAll(providerConfig.sendButtonSelector))
+        .find(isComposerControlReady)
     );
 
-    if (btn) {
-      console.log("[Ask] Send button ready, clicking");
-      btn.click();
-      // Cleanup
-      console.log("[Ask] Cleanup");
-      GM_deleteValue("ask_prompt");
-      GM_deleteValue("ask_images");
-    }
+    console.log("[Ask] Send button ready, clicking");
+    btn.click();
+    // Keep the transfer until the composer acknowledges submission.
+    await waitForDom(() => !inputBox.isConnected || (
+      !(inputBox.value || inputBox.textContent).trim() &&
+      files.every((file) => !hasComposerAttachment(root, file))
+    ));
+    console.log("[Ask] Cleanup");
+    GM_deleteValue("ask_prompt");
+    GM_deleteValue("ask_images");
   } catch (err) {
     console.error("[Ask] Error processing content", err);
   }
